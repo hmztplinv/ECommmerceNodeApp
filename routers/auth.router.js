@@ -34,4 +34,33 @@ router.post("/register", async (req, res) => {
     }
 });
 
+router.post("/login", async (req, res) => {
+    try {
+        const { email, password } = req.body;
+        let user = await User.findOne({ email: email });
+        if (!user) {
+            res.status(400).json({ message: "Email is not registered" });
+            return;
+        }
+        else {
+            if (user.password !== password) {
+                res.status(400).json({ message: "Password is incorrect" });
+                return;
+            }
+            else {
+                const token = jwt.sign({}, secretKey, options);
+                let model = {
+                    user: user,
+                    token: token
+                }
+                res.json(model);
+            }
+        }
+    }
+    catch (err) {
+        res.status(500).json({ message: err.message });
+    }
+});
+
+
 module.exports = router;
