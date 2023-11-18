@@ -6,9 +6,16 @@ const { v4: uuidv4 } = require('uuid');
 router.post("/add", async (req, res) => {
     try {
         const { name } = req.body;
-        const category = new Category({ _id: uuidv4(), name });
-        await category.save();
-        res.json({ success: true, message: "Category added successfully", category });
+        const checkCatName = await Category.findOne({ name: name });
+        if (checkCatName != null) {
+            res.status(403).json({ success: false, message: "Category already exists" });
+        }
+        else {
+            const category = new Category({ _id: uuidv4(), name });
+            await category.save();
+            res.json({ success: true, message: "Category added successfully", category });
+        }
+
     }
 
     catch (err) {
@@ -42,7 +49,7 @@ router.post("/update", async (req, res) => {
     }
 });
 
-router.get("/getAll", async (req, res) => {
+router.get("/", async (req, res) => {
     try {
         const categories = await Category.find().sort({ name: 1 });
         res.json({ success: true, message: "Categories retrieved successfully", categories });
