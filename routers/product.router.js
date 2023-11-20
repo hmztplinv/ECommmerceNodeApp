@@ -44,14 +44,14 @@ router.post("/",async (req,res)=>{
         const {pageNumber,pageSize,searchText}=req.body;
         let productCount=await Product.find({
             $or:[
-                {name:{$regex:searchText,$options:"i"}}
+                {name:{$regex:new RegExp(searchText),$options:"i"}}
             ]
 
         }).count();
 
         let products=await Product.find({
             $or:[
-                {name:{$regex:searchText,$options:"i"}}
+                {name:{$regex:new RegExp(searchText),$options:"i"}}
             ]
         })
         .sort({name:1})
