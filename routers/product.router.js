@@ -71,3 +71,50 @@ router.post("/",async (req,res)=>{
         res.json(model);
     });
 });
+
+router.post("/getById",async (req,res)=>{
+    response(res,async ()=>{
+        const {_id}=req.body;
+        let product=await Product.findById(_id).populate("categories");
+        res.json(product);
+    });
+})
+
+router.post("/update",upload.array("images"),async (req,res)=>{
+    response(res,async ()=>{
+        const {_id,name,price,stock,categories}=req.body;
+        let product=await Product.findById(_id);
+        for(const image of product.imageUrls){
+            fs.unlink(image.path,()=>{});
+        }
+        let imageUrls;
+        imageUrls=[...product.imageUrls,...req.files];
+        product={
+            name:name.toUpperCase(),
+            price:price,
+            stock:stock,
+            categories:categories,
+            imageUrls:imageUrls
+        };
+        await Product.findByIdAndUpdate(_id,product);
+        res.json({success:true,message:"Product updated successfully",product
+        });
+    });
+});
+
+router.post("/removeImageById",async (req,res)=>{
+    response(res,async ()=>{
+        const {_id,index}=req.body;
+        let product=await Product.findById(_id);
+        if(product.imageUrls.length==1){
+            return res.json({success:false,message:"You can not remove all images"});
+        }else{
+            let image=product.imageUrls[index];
+            product.imageUrls.splice(index,1);
+            await Product.findByIdAndUpdate(_id,product);
+            fs.unlink(image.path,()=>{});
+            res.json({success:true,message:"Image removed successfully"});
+        }
+
+    });
+})
