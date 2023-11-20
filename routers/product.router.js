@@ -39,3 +39,35 @@ router.post("/removeById", async (req, res) => {
 
 });
 
+router.post("/",async (req,res)=>{
+    response(res,async ()=>{
+        const {pageNumber,pageSize,searchText}=req.body;
+        let productCount=await Product.find({
+            $or:[
+                {name:{$regex:searchText,$options:"i"}}
+            ]
+
+        }).count();
+
+        let products=await Product.find({
+            $or:[
+                {name:{$regex:searchText,$options:"i"}}
+            ]
+        })
+        .sort({name:1})
+        .populate("categories")
+        .skip((pageNumber-1)*pageSize)
+        .limit(pageSize);
+
+        let totalPageCount=Math.ceil(productCount/pageSize);
+        let model={
+            datas:products,
+            pageNumber:pageNumber,
+            pageSize:pageSize,
+            totalPageCount:totalPageCount,
+            isFirstPage:pageNumber==1 ? true:false,
+            isLastPage:totalPageCount==pageNumber ? true:false
+        };
+        res.json(model);
+    });
+});
