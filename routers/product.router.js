@@ -84,9 +84,9 @@ router.post("/update",upload.array("images"),async (req,res)=>{
     response(res,async ()=>{
         const {_id,name,price,stock,categories}=req.body;
         let product=await Product.findById(_id);
-        for(const image of product.imageUrls){
-            fs.unlink(image.path,()=>{});
-        }
+        // for(const image of product.imageUrls){
+        //     fs.unlink(image.path,()=>{});
+        // }
         let imageUrls;
         imageUrls=[...product.imageUrls,...req.files];
         product={
@@ -94,7 +94,8 @@ router.post("/update",upload.array("images"),async (req,res)=>{
             price:price,
             stock:stock,
             categories:categories,
-            imageUrls:imageUrls
+            imageUrls:imageUrls,
+            // isActive:isActive
         };
         await Product.findByIdAndUpdate(_id,product);
         res.json({success:true,message:"Product updated successfully",product
