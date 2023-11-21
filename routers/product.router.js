@@ -120,9 +120,9 @@ router.post("/removeImageById",async (req,res)=>{
 })
 
 
-router.post("changeActiveStatus",async (req,res)=>{
+router.post("/changeActiveStatus",async (req,res)=>{
     response(res,async ()=>{
-        const {_id,isActive}=req.body;
+        const {_id}=req.body;
         let produt=await Product.findById(_id);
         produt.isActive=!produt.isActive;
         await Product.findByIdAndUpdate(_id,produt);
