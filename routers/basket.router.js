@@ -28,9 +28,9 @@ router.post("/removeById", async (req, res) => {
     response(res, async () => {
         const { _id } = req.body;
         let basket=await Basket.findById(_id);
-        let product=await Product.findById(productId);
+        let product=await Product.findById(basket.productId);
         product.stock=product.stock+basket.quantity;
-        await Product.findbyIdAndUpdate(productId,product);
+        await Product.findByIdAndUpdate(basket.productId,product);
         await Basket.findByIdAndDelete(_id);
         res.json({ success: true, message: "Product removed successfully" });
     });
@@ -53,7 +53,7 @@ router.post("/", async (req, res) => {
             }
         ]);
 
-        res.json({ success: true, message: "Products listed successfully", baskets });
+        res.json(baskets);
        
     });
 });
