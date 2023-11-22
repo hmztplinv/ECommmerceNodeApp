@@ -8,18 +8,19 @@ const Product = require('../models/product');
 router.post("/add", async (req, res) => {
     response(res, async () => {
         const { userId, productId, price, quantity } = req.body;
-        const basket = new Basket({
-            _id: uuidv4(),
-            userId: userId,
-            productId: productId,
-            price: price,
-            quantity: quantity,
-        });
+        let basket = new Basket();
+        basket._id = uuidv4();
+        basket.userId = userId;
+        basket.productId = productId;
+        basket.price = price;
+        basket.quantity = quantity;
+
         await basket.save();
-        let product=await Product.findById(productId);
-        product.stock=product.stock-quantity;
-        await Product.findbyIdAndUpdate(productId,product);
-        res.json({ success: true, message: "Product added successfully", basket });
+
+        let product = await Product.findById(productId);
+        product.stock -= quantity;
+        await Product.findByIdAndUpdate(productId, product);
+        res.json({ success: true, message: "Product added successfully", basket: basket });
     });
 });
 
@@ -54,6 +55,14 @@ router.post("/", async (req, res) => {
 
         res.json({ success: true, message: "Products listed successfully", baskets });
        
+    });
+});
+
+router.post("/getBasketCount", async (req, res) => {
+    response(res, async () => {
+        const { userId } = req.body;
+        const basketCount=await Basket.find({userId:userId}).count();
+        res.json({ success: true, message: "Basket count listed successfully", basketCount: basketCount });       
     });
 });
 
